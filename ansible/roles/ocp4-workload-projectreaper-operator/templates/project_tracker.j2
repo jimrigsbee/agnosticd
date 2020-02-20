@@ -2,6 +2,8 @@ apiVersion: redhattraining.com/v1alpha1
 kind: ProjectTracker
 metadata:
   name: default
+  annotations:
+    "ansible.operator-sdk/verbosity": 0
 spec:
   ignore_project_prefix:
   - default
@@ -10,3 +12,4 @@ spec:
   - rht-
   - gpte-
   - opentlc-
+  reap_projects: true

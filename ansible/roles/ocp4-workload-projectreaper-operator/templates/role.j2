@@ -30,6 +30,13 @@ rules:
   verbs:
   - update
 - apiGroups:
+  - apps
+  resources:
+  - replicasets
+  - deployments
+  verbs:
+  - get
+- apiGroups:
   - ""
   resources:
   - namespaces
@@ -48,6 +55,7 @@ rules:
   - pods
   - configmaps
   - secrets
+  - services
   verbs:
   - create
   - delete

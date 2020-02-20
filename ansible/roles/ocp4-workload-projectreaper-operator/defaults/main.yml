@@ -13,3 +13,4 @@ ignore_project_prefix:
 - rht-
 - gpte-
 - opentlc-
+reap_projects: true
