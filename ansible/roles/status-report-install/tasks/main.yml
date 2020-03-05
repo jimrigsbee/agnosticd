@@ -33,12 +33,24 @@
   shell: |
     semanage port -a -t http_port_t -p tcp 30904
     semanage port -m -t http_port_t -p tcp 30904
+    semanage port -a -t http_port_t -p tcp 8081
+    semanage port -m -t http_port_t -p tcp 8081
+
+# - name: Open Firewall for IdM use
+#   firewalld:
+#     port: "{{ item }}"
+#     permanent: yes
+#     state: enabled
+#     immediate: yes
+#   with_items:
+#   - "8081/tcp"
 
 - name: Install python application as a service
   include_role:
     name: Stouts.wsgi
   vars:
     python_enabled: false
+    nginx_status: "127.0.0.1:8081"
     wsgi_group: nginx
     wsgi_nginx_servernames: "{{ bastion_dns_name }}"
     wsgi_nginx_port: 30904
@@ -47,12 +59,18 @@
       server: gunicorn
       module: wsgi
       pip_requirements: requirements.txt
+
 - name: Fixups for python virutal env created by Stouts
   shell: |
     source /opt/status/env/bin/activate
     chown -R ec2-user:ec2-user /opt/status/env
     wget https://bootstrap.pypa.io/ez_setup.py -O - | python
   become: no
+
+- name: Remove default nginx config to free port 80
+  file:
+    name: /etc/nginx/conf.d/default.conf
+    state: absent
 
 - name: Create runtime folders
   file:
@@ -63,6 +81,7 @@
   with_items:
     - /opt/status/run
     - /opt/status/log
+
 - name: Fix selinux context for nginx access
   shell: |
     semanage fcontext -a -t httpd_sys_rw_content_t "{{item}}(/.*)?"
@@ -70,6 +89,12 @@
   with_items:
     - /opt/status/run
     - /opt/status/log
+
+- name: Restart nginx for fixups to take effect
+  service:
+    name: nginx
+    state: restarted
+
 - name: Activate application service
   service:
     name: status-wsgi

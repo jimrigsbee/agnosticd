@@ -9,6 +9,14 @@
     line: "{{ ansible_default_ipv4.address }} {{ idm_dns_name }}"
     state: present
 
+- name: Uninstall IdM for idempotency
+  shell: |
+    curl http://localhost
+    if [ $? -eq 0 ]; then
+      ipa-server-install -U --uninstall
+    fi
+  ignore_errors: true
+
 - name: Configure initial IdM setup
   command: >
     ipa-server-install -U
@@ -18,5 +26,4 @@
       --ds-password="{{ idm_dm_password }}"
       --admin-password="{{ idm_admin_password }}"
       --no-host-dns
-  ignore_errors: true
   notify: Ensure IdM is running at boot
