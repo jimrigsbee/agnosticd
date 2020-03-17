@@ -63,6 +63,18 @@
       delegate_to: localhost
       register: cache_archive_file
 
+    - name: Ensure Certbot Directories are present
+      file:
+        name: "{{ item }}"
+        state: directory
+        owner: "{{ _certbot_remote_dir_owner }}"
+        mode: 0775
+      loop:
+      - "{{ _certbot_dir }}"
+      - "{{ _certbot_dir }}/config"
+      - "{{ _certbot_dir }}/work"
+      - "{{ _certbot_dir }}/logs"
+      
     - name: Restore entire certificate archive
       when:
       - _certbot_use_cache|bool
@@ -78,20 +90,6 @@
       - name: Set _certbot_setup_complete=true
         set_fact:
           _certbot_setup_complete: true
-
-    - name: Ensure Certbot Directories are present
-      file:
-        name: "{{ item }}"
-        state: directory
-        owner: "{{ _certbot_remote_dir_owner }}"
-        mode: 0775
-      loop:
-      - "{{ _certbot_dir }}"
-      - "{{ _certbot_dir }}/config"
-      - "{{ _certbot_dir }}/work"
-      - "{{ _certbot_dir }}/logs"
-      # - "{{ _certbot_dir }}/renewal-hooks"
-      # - "{{ _certbot_dir }}/renewal-hooks/deploy"
 
     - name: Request Certificates from Let's Encrypt (force or no cache)
       when:

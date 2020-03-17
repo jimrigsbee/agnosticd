@@ -36,14 +36,24 @@
     semanage port -a -t http_port_t -p tcp 8081
     semanage port -m -t http_port_t -p tcp 8081
 
-# - name: Open Firewall for IdM use
-#   firewalld:
-#     port: "{{ item }}"
-#     permanent: yes
-#     state: enabled
-#     immediate: yes
-#   with_items:
-#   - "8081/tcp"
+- name: Install firewalld
+  yum:
+    name:
+      - firewalld
+    state: installed
+
+- name: Ensure firewalld is running
+  service:
+    name: firewalld
+    state: started
+    enabled: yes
+    
+- name: Open Firewall for reporting use
+  firewalld:
+    port: 30904/tcp
+    permanent: yes
+    state: enabled
+    immediate: yes
 
 - name: Install python application as a service
   include_role:
