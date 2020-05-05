@@ -28,7 +28,8 @@
 - name: Install python virtualenv
   pip:
     name: virtualenv
-    state: latest
+    state: present
+    version: 20.0.18
 - name: Allow nginx to access non-standard port
   shell: |
     semanage port -a -t http_port_t -p tcp 30904
@@ -47,7 +48,7 @@
     name: firewalld
     state: started
     enabled: yes
-    
+
 - name: Open Firewall for reporting use
   firewalld:
     port: 30904/tcp
